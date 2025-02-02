@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
@@ -15,6 +16,7 @@ pub fn build(b: *std.Build) void {
     });
     flecs.linkLibC();
     flecs.addIncludePath(b.path("libs/flecs"));
+	flecs.addIncludePath(b.pathJoin(&.{ b.sysroot.?, "include" }));
     flecs.addCSourceFile(.{
         .file = b.path("libs/flecs/flecs.c"),
         .flags = &.{
@@ -24,8 +26,8 @@ pub fn build(b: *std.Build) void {
             if (target.result.os.tag == .emscripten) "-D__EMSCRIPTEN__" else "",
             if (@import("builtin").mode == .Debug) "-DFLECS_SANITIZE" else "",
         },
-        .include_directories = &.{b.pathJoin(&.{ b.sysroot.?, "include" })},
     });
+
     b.installArtifact(flecs);
 
     switch (target.result.os.tag) {
@@ -48,4 +50,21 @@ pub fn build(b: *std.Build) void {
     tests.linkLibrary(flecs);
 
     test_step.dependOn(&b.addRunArtifact(tests).step);
+
+fn emSdkSetupStep(b: *Build, emsdk: *Build.Dependency) !?*Build.Step.Run {
+    const dot_emsc_path = emSdkLazyPath(b, emsdk, &.{".emscripten"}).getPath(b);
+    const dot_emsc_exists = !std.meta.isError(std.fs.accessAbsolute(dot_emsc_path, .{}));
+    if (!dot_emsc_exists) {
+        const emsdk_install = createEmsdkStep(b, emsdk);
+        emsdk_install.addArgs(&.{ "install", "latest" });
+        const emsdk_activate = createEmsdkStep(b, emsdk);
+        emsdk_activate.addArgs(&.{ "activate", "latest" });
+        emsdk_activate.step.dependOn(&emsdk_install.step);
+        return emsdk_activate;
+    } else {
+        return null;
+    }
 }
+}
+
+
