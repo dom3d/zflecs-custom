@@ -31,9 +31,6 @@ pub fn build(b: *std.Build) void {
         .windows => {
             flecs.linkSystemLibrary("ws2_32");
         },
-        .emscripten => {
-            flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
-        },
         else => {},
     }
 
