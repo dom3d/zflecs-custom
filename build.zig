@@ -21,6 +21,7 @@ pub fn build(b: *std.Build) void {
             "-fno-sanitize=undefined",
             "-DFLECS_NO_CPP",
             "-DFLECS_USE_OS_ALLOC",
+            if (target.result.os.tag == .emscripten) "-D__EMSCRIPTEN__" else "",
             if (@import("builtin").mode == .Debug) "-DFLECS_SANITIZE" else "",
         },
     });
@@ -31,7 +32,6 @@ pub fn build(b: *std.Build) void {
             flecs.linkSystemLibrary("ws2_32");
         },
         .emscripten => {
-            flecs.defineCMacro("__EMSCRIPTEN__", "1");
             flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
         },
         else => {},
