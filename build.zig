@@ -65,7 +65,7 @@ pub fn build(b: *std.Build) void {
 
 // helper function to get SDK path on Mac, taken from: https://github.com/prime31/zig-upaya/blob/b040acab13c7af00c3ce0eade03e1f3b0b1d5b02/src/deps/imgui/build.zig#L44
 // or https://github.com/gballet/zig/blob/8ea2b40e5f621482d714fdd7cb05bbc592fc550b/lib/std/zig/system/macos.zig#L459
-fn macosSdkDir(b: *std.Builder) ![]u8 {
+fn macosSdkDir(b: *std.Build) ![]u8 {
     var str = try b.exec(&[_][]const u8{ "xcrun", "--show-sdk-path" });
     const strip_newline = std.mem.lastIndexOf(u8, str, "\n");
     if (strip_newline) |index| {
