@@ -1,4 +1,12 @@
-# zflecs v0.1.0 - Build package and bindings for [flecs](https://github.com/SanderMertens/flecs) ECS 
+# Fork of zflecs bindings for [flecs](https://github.com/SanderMertens/flecs) ECS
+
+# Fork differences
+
+Exploration if the package can be adjusted to support emscripting compilation target out of the box. Currently on OSX ig gives me an `Asset.h not fond` error.
+References:
+- https://github.com/zig-gamedev/zig-gamedev/blob/096abfcad412f86946d958d12a540f1f0a810a91/libs/zflecs/build.zig
+- https://github.com/zig-gamedev/zflecs/issues/3
+
 
 ## Getting started
 

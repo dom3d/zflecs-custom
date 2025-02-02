@@ -26,8 +26,15 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(flecs);
 
-    if (target.result.os.tag == .windows) {
-        flecs.linkSystemLibrary("ws2_32");
+    switch (target.result.os.tag) {
+        .windows => {
+            flecs.linkSystemLibrary("ws2_32");
+        },
+        .emscripten => {
+            flecs.defineCMacro("__EMSCRIPTEN__", "1");
+            flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
+        },
+        else => {},
     }
 
     const test_step = b.step("test", "Run zflecs tests");
