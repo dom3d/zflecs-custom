@@ -16,7 +16,18 @@ pub fn build(b: *std.Build) void {
     });
     flecs.linkLibC();
     flecs.addIncludePath(b.path("libs/flecs"));
-    flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
+
+    // todo: constrain to host being OSX
+    if (target.result.os.tag == .emscripten) {
+        if (b.sysroot == null) {
+            b.sysroot = macosSdkDir(b);
+        }
+        //flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
+        flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "usr", "include" }) });
+        //flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "cache", "sysroot", "include" }) });
+    }
+    // flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
+
     flecs.addCSourceFile(.{
         .file = b.path("libs/flecs/flecs.c"),
         .flags = &.{
@@ -50,4 +61,16 @@ pub fn build(b: *std.Build) void {
     tests.linkLibrary(flecs);
 
     test_step.dependOn(&b.addRunArtifact(tests).step);
+}
+
+// helper function to get SDK path on Mac, taken from: https://github.com/prime31/zig-upaya/blob/b040acab13c7af00c3ce0eade03e1f3b0b1d5b02/src/deps/imgui/build.zig#L44
+// or https://github.com/gballet/zig/blob/8ea2b40e5f621482d714fdd7cb05bbc592fc550b/lib/std/zig/system/macos.zig#L459
+fn macosSdkDir(b: *std.Builder) ![]u8 {
+    var str = try b.exec(&[_][]const u8{ "xcrun", "--show-sdk-path" });
+    const strip_newline = std.mem.lastIndexOf(u8, str, "\n");
+    if (strip_newline) |index| {
+        str = str[0..index];
+    }
+    //const frameworks_dir = try std.mem.concat(b.allocator, u8, &[_][]const u8{ str, "/System/Library/Frameworks" });
+    return str;
 }
