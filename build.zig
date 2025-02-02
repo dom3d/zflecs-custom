@@ -24,6 +24,7 @@ pub fn build(b: *std.Build) void {
             if (target.result.os.tag == .emscripten) "-D__EMSCRIPTEN__" else "",
             if (@import("builtin").mode == .Debug) "-DFLECS_SANITIZE" else "",
         },
+        .include_directories = &.{b.pathJoin(&.{ b.sysroot.?, "include" })},
     });
     b.installArtifact(flecs);
 
