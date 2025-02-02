@@ -16,7 +16,7 @@ pub fn build(b: *std.Build) void {
     });
     flecs.linkLibC();
     flecs.addIncludePath(b.path("libs/flecs"));
-    flecs.addIncludePath(b.pathJoin(&.{ b.sysroot.?, "include" }));
+    flecs.addIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "include" }) });
     flecs.addCSourceFile(.{
         .file = b.path("libs/flecs/flecs.c"),
         .flags = &.{
